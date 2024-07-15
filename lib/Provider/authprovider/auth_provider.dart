@@ -1,18 +1,16 @@
 import 'dart:io';
-
 import 'dart:convert'; // Importing json
-
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:myapp/constant/url.dart';
 import 'package:http/http.dart' as http;
 
 class Authentication extends ChangeNotifier {
-  final rqsturl = Appurl.baseurl;
-  bool _isloading = false;
+  final String rqsturl = Appurl.baseurl;
+  bool _isLoading = false;
   String _resMessage = '';
 
-  bool get isLoading => _isloading;
+  bool get isLoading => _isLoading;
   String get resMessage => _resMessage;
 
   void registerUser({
@@ -22,88 +20,96 @@ class Authentication extends ChangeNotifier {
     required String lastName,
     BuildContext? context,
   }) async {
-    _isloading = true;
+    _isLoading = true;
     notifyListeners();
     String url = "$rqsturl/users/";
+
     final body = {
       "firstName": firstName,
       "lastName": lastName,
       "email": email,
       "password": password
     };
-    print(body);
+    print("Request Body: $body");
 
     try {
-      http.Response req =
-          await http.post(Uri.parse(url), body: json.encode(body));
+      http.Response req = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(body),
+      );
+      print("Response status: ${req.statusCode}");
+      print("Response body: ${req.body}");
+
       if (req.statusCode == 200 || req.statusCode == 201) {
         final res = json.decode(req.body);
-        print(res.body);
+        print(res);
 
-        _isloading = false;
-        _resMessage = 'account created';
+        _isLoading = false;
+        _resMessage = 'Account created';
         notifyListeners();
       } else {
-        final res = json.decode(req.body);
-        print(res);
-        _isloading = false;
+        print("Unexpected response format");
+        _resMessage = "Unexpected response format: ${req.body}";
+        _isLoading = false;
         notifyListeners();
       }
     } on SocketException catch (_) {
-      _isloading = false;
-
-      _resMessage = "No internet";
+      _isLoading = false;
+      _resMessage = "No internet connection";
       notifyListeners();
     } catch (e) {
-      _isloading = false;
-      _resMessage = "please try again";
+      _isLoading = false;
+      _resMessage = "An error occurred: $e";
       notifyListeners();
       print(e);
     }
   }
 
-  //login
-  void LoginUser({
+  void loginUser({
     required String email,
     required String password,
     BuildContext? context,
   }) async {
-    _isloading = true;
+    _isLoading = true;
     notifyListeners();
     String url = "$rqsturl/users/login";
+
     final body = {"email": email, "password": password};
-    print(body);
+    print("Request Body: $body");
 
     try {
-      http.Response req =
-          await http.post(Uri.parse(url), body: json.encode(body));
+      http.Response req = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(body),
+      );
+      print("Response status: ${req.statusCode}");
+      print("Response body: ${req.body}");
+
       if (req.statusCode == 200 || req.statusCode == 201) {
         final res = json.decode(req.body);
-        print(res.body);
+        print(res);
 
-        _isloading = false;
-        _resMessage = "account logged in";
+        _isLoading = false;
+        _resMessage = "Account logged in";
         notifyListeners();
       } else {
-        final res = json.decode(req.body);
-        _resMessage = res['message'];
-        print(res);
-        _isloading = false;
+        print("Unexpected response format");
+        _resMessage = "Unexpected response format: ${req.body}";
+        _isLoading = false;
         notifyListeners();
       }
     } on SocketException catch (_) {
-      _isloading = false;
-
-      _resMessage = "No internet";
+      _isLoading = false;
+      _resMessage = "No internet connection";
       notifyListeners();
     } catch (e) {
-      _isloading = false;
-      _resMessage = "please try again";
+      _isLoading = false;
+      _resMessage = "An error occurred: $e";
       notifyListeners();
       print(e);
     }
-
-    //login
   }
 
   void clear() {

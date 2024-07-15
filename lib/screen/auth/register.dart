@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/Provider/authprovider/auth_provider.dart';
 import 'package:myapp/Util/router.dart';
+import 'package:myapp/Util/snack_bar.dart';
 import 'package:myapp/Widget/button.dart';
 import 'package:myapp/Widget/textfield.dart';
 import 'package:myapp/screen/auth/login.dart';
+import 'package:provider/provider.dart';
+import 'package:myapp/Provider/authprovider/auth_provider.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -55,18 +58,41 @@ class _RegisterPageState extends State<RegisterPage> {
                       title: 'password',
                       hint: 'enter your password',
                       controller: _password),
-                  customButton(
-                      text: 'register',
-                      tap: () {
-                        Authentication().registerUser(
-                            email: _email.text,
-                            password: _password.text,
-                            firstName: _firstName.text,
-                            lastName: _lastName.text);
-                      },
-                      context: context,
-                      status: false,
-                      isValid: true),
+                   Consumer<Authentication>(
+                    builder: (context, auth, child) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (auth.resMessage.isNotEmpty) {
+                          ShowMessage(
+                            message: auth.resMessage,
+                            context: context,
+                          );
+                          auth.clear();
+                        }
+                      });
+                      return customButton(
+                        text: 'Register',
+                        tap: () {
+                          if (_email.text.isEmpty || _password.text.isEmpty||_firstName.text.isEmpty||_lastName.text.isEmpty) {
+                            ShowMessage(
+                              message: "all fields are required",
+                              context: context,
+                            );
+                          } else {
+                            auth.registerUser(
+                              firstName: _firstName.text.trim(),
+                              lastName: _lastName.text.trim(),
+                              email: _email.text.trim(),
+                              password: _password.text.trim(),
+                              context: context,
+                            );
+                          }
+                        },
+                        context: context,
+                        status: auth.isLoading,
+                        isValid: true,
+                      );
+                    },
+                  ),
                   SizedBox(
                     height: 10,
                   ),

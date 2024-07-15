@@ -17,7 +17,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
-  
+
   @override
   void dispose() {
     _email.clear();
@@ -68,9 +68,10 @@ class _LoginPageState extends State<LoginPage> {
                               context: context,
                             );
                           } else {
-                            auth.LoginUser(
+                            auth.loginUser(
                               email: _email.text.trim(),
                               password: _password.text.trim(),
+                              context: context,
                             );
                           }
                         },
@@ -85,7 +86,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      PageNavigator(ctx: context).nextPage(page: RegisterPage());
+                      PageNavigator(ctx: context)
+                          .nextPage(page: RegisterPage());
                     },
                     child: Text("Register"),
                   )
